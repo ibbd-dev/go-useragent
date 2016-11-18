@@ -26,6 +26,10 @@ const (
 	MakeLg      = "lg"
 )
 
+const (
+	ModeUnkown = ""
+)
+
 // 品牌列表
 var makeList = []string{
 	MakeHuawei,

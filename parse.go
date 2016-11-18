@@ -1,7 +1,6 @@
 package useragent
 
 import (
-	"errors"
 	"regexp"
 	"strings"
 )
@@ -20,14 +19,16 @@ type TResult struct {
 
 var (
 	//regex
-	makeStr = strings.Join(makeList, "|")
-	osStr   = strings.Join(osList, "|")
-	modeStr = "\\(.+?;"
+	makeStr     = strings.Join(makeList, "|")
+	osStr       = strings.Join(osList, "|")
+	modeStr     = "; .+? Build\\/"
+	momoModeStr = "\\(.+?;" // momo
 
 	// 正则
-	makeRegexp *regexp.Regexp
-	modeRegexp *regexp.Regexp
-	osRegexp   *regexp.Regexp
+	makeRegexp     *regexp.Regexp
+	modeRegexp     *regexp.Regexp
+	momoModeRegexp *regexp.Regexp
+	osRegexp       *regexp.Regexp
 )
 
 var ()
@@ -40,6 +41,11 @@ func init() {
 	}
 
 	modeRegexp, err = regexp.Compile(modeStr)
+	if err != nil {
+		panic(err)
+	}
+
+	momoModeRegexp, err = regexp.Compile(momoModeStr)
 	if err != nil {
 		panic(err)
 	}
@@ -68,53 +74,28 @@ func Parse(ua string) (res *TResult, err error) {
 	}
 
 	// 解释型号
-	res, err = parseModel(ua, res)
-	if err != nil {
-		return res, err
-	}
+	res.parseModel(ua)
 
 	//res, err = parseOsAndOsv(uaString, res)
 	return res, nil
 }
 
-func parseModel(ua string, res *TResult) (*TResult, error) {
-	//model
-	//if !strings.Contains(ua, "build") {
-	if strings.HasSuffix(momoPrefix) {
-		res.Model = modelRegexp.FindString(ua)
-		if res.Model == "" {
-			err = errors.New("extra model failed!")
-			return res, err
+func (res *TResult) parseModel(ua string) {
+	if strings.HasSuffix(ua, momoPrefix) {
+		res.Model = momoModeRegexp.FindString(ua)
+		if res.Model == "" || len(res.Model) < 2 {
+			res.Model = ModeUnkown
+			return
 		}
-		if strings.Contains(model, " ") {
-			modelSplit := strings.Split(model, " ")
-			if modelSplit[0] == brand {
-				if len(modelSplit) > 2 {
-					model = modelSplit[1] + modelSplit[2]
-				} else {
-					model = modelSplit[1]
-				}
-			}
-		}
-		model = strings.Trim(model, ";")
-
+		res.Model = res.Model[1 : len(res.Model)-7]
+		res.Model = strings.Trim(res.Model, " ")
 	} else {
-		extraModel, err := regexp.Compile(modelString2)
-		if err != nil {
-			return res, err
-		}
-		model = extraModel.FindString(ua)
-		if model == "" {
-			err = errors.New("extra model failed!")
-			return res, err
-		}
-		model = strings.Replace(model, " build", "", -1)
+		res.Model = modeRegexp.FindString(ua)
+		res.Model = strings.Trim(res.Model, "(; ")
 	}
-	model = strings.Trim(model, " ")
-	res.Model = model
-	return res, nil
 }
 
+/*
 func parseOsAndOsv(ua string, res *TResult) (*TResult, error) {
 	//os
 	ua = strings.Replace(ua, ";", "", -1)
@@ -134,4 +115,4 @@ func parseOsAndOsv(ua string, res *TResult) (*TResult, error) {
 	osv := extraOsv.FindString(ua)
 	res.Osv = osv
 	return res, nil
-}
+}*/
