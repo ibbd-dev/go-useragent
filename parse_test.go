@@ -9,6 +9,20 @@ import (
 	"testing"
 )
 
+func TestSimpleParse(t *testing.T) {
+	ua := "MomoChat/6.11.2 ios/576 (iPhone 6S Plus; iPhone OS 9.3.5; zh_CN; iPhone8,2; S1)"
+	res, _ := Parse(ua)
+	fmt.Printf("%s\n%+v\n\n", ua, *res)
+
+	ua = "Mozilla/5.0 (iPhone; CPU iPhone OS 7_1_2 like Mac OS X) AppleWebKit/537.51.2 (KHTML, like Gecko) Mobile/11D257"
+	res, _ = Parse(ua)
+	fmt.Printf("%s\n%+v\n\n", ua, *res)
+
+	ua = "Mozilla/5.0 (Linux; Android 4.4.3; MI 2 Build/KTU84L) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/33.0.0.0 Mobile Safari/537.36"
+	res, _ = Parse(ua)
+	fmt.Printf("%s\n%+v\n\n", ua, *res)
+}
+
 func readLine(fileName string, handler func(string)) error {
 	f, err := os.Open(fileName)
 	if err != nil {
@@ -40,14 +54,14 @@ func handler(line string) {
 		if err != nil {
 			fmt.Println(err)
 		}
-		if result.Make == "" {
-			fmt.Println("ua: ", ua)
+		//if result.Make == "" {
+		fmt.Println("ua: ", ua)
 
-			//fmt.Println("brand: ", result.Make)
-			//fmt.Println("model: ", result.Model)
-			//fmt.Println("os: ", result.Os)
-			//fmt.Println("osv: ", result.Osv)
-		}
+		fmt.Println("brand: ", result.Make)
+		fmt.Println("model: ", result.Model)
+		fmt.Println("os: ", result.Os)
+		fmt.Println("osv: ", result.Osv)
+		//}
 	}
 }
 

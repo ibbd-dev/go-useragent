@@ -10,9 +10,7 @@ const (
 	MakeUnknown = "" // 未知
 	MakeHuawei  = "huawei"
 	MakeXiaomi  = "xiaomi"
-	MakeMi      = "mi"
 	MakeApple   = "apple"
-	MakeiPhone  = "iphone" // special for apple
 	MakeVivo    = "vivo"
 	MakeOppo    = "oppo"
 	MakeSamsung = "samsung"
@@ -34,9 +32,7 @@ const (
 var makeList = []string{
 	MakeHuawei,
 	MakeXiaomi,
-	MakeMi,
 	MakeApple,
-	MakeiPhone,
 	MakeVivo,
 	MakeOppo,
 	MakeSamsung,
@@ -48,31 +44,30 @@ var makeList = []string{
 	MakeZte,
 	MakeTcl,
 	MakeLg,
+
+	// 额外的
+	"iphone",
+	"ipad",
+	"mac os",
 }
 
 // 操作系统定义
 const (
-	OsUnknown  = "" // 未知
-	OsMacOs    = "Mac OS"
-	OsIOs      = "ios"
-	OsiPhoneOS = "iphone os"
-	OsAndroid  = "android"
+	OsUnknown = "" // 未知
+	OsIOs     = "ios"
+	OsAndroid = "android"
 )
 
 // 操作系统列表
 var osList = []string{
-	OsMacOs,
 	OsIOs,
-	OsiPhoneOS,
 	OsAndroid,
 }
 
 var makeMap = map[string]string{
 	MakeHuawei:  MakeHuawei,
 	MakeXiaomi:  MakeXiaomi,
-	MakeMi:      MakeXiaomi,
 	MakeApple:   MakeApple,
-	MakeiPhone:  MakeApple,
 	MakeVivo:    MakeVivo,
 	MakeOppo:    MakeOppo,
 	MakeSamsung: MakeSamsung,
@@ -84,11 +79,14 @@ var makeMap = map[string]string{
 	MakeZte:     MakeZte,
 	MakeTcl:     MakeTcl,
 	MakeLg:      MakeLg,
+
+	// 额外的
+	"iphone": MakeApple,
+	"ipad":   MakeApple,
+	"mac os": MakeApple,
 }
 
 var osMap = map[string]string{
-	OsMacOs:    OsMacOs,
-	OsIOs:      OsIOs,
-	OsiPhoneOS: OsIOs,
-	OsAndroid:  OsAndroid,
+	OsIOs:     OsIOs,
+	OsAndroid: OsAndroid,
 }
