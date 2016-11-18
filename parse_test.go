@@ -1,12 +1,12 @@
 package useragent
 
 import (
-	"testing"
-	"fmt"
-	"os"
 	"bufio"
-	"strings"
+	"fmt"
 	"io"
+	"os"
+	"strings"
+	"testing"
 )
 
 func readLine(fileName string, handler func(string)) error {
@@ -19,6 +19,7 @@ func readLine(fileName string, handler func(string)) error {
 		line, err := buf.ReadString('\n')
 		line = strings.TrimSpace(line)
 		handler(line)
+		break
 		if err != nil {
 			if err == io.EOF {
 				return nil
@@ -36,36 +37,36 @@ func handler(line string) {
 	uaSplit := strings.Split(line, "ua:")
 	if len(uaSplit) > 1 {
 		ua := uaSplit[1]
-		fmt.Println("ua: ", ua)
 		result, err := Parse(ua)
 		if err != nil {
 			fmt.Println(err)
 		}
-		fmt.Println("brand: ", result.Make)
-		fmt.Println("model: ", result.Model)
-		fmt.Println("os: ", result.Os)
-		fmt.Println("osv: ", result.Osv)
+		if result.Make == "" {
+			fmt.Println("ua: ", ua)
+
+			//fmt.Println("brand: ", result.Make)
+			//fmt.Println("model: ", result.Model)
+			//fmt.Println("os: ", result.Os)
+			//fmt.Println("osv: ", result.Osv)
+		}
 	}
 }
 
-func TestParse(t *testing.T) {
+func _TestParse(t *testing.T) {
 	readLine("app.log.2016111710", handler)
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+func BenchmarkParse(b *testing.B) {
+	ua := "Mozilla/5.0 (Linux; Android 4.4.2; GN151 Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/30.0.0.0 Mobile Safari/537.36"
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			res, err := Parse(ua)
+			if err != nil {
+				_ = res
+			}
+		}
+	})
+}
 
 //osAndOsv := extraModel.FindAllString(uaString, 2)
 //if len(osAndOsv) > 1 {
@@ -91,8 +92,6 @@ func TestParse(t *testing.T) {
 //	err = errors.New("extra osAndOsv failed!")
 //	return res, err
 //}
-
-
 
 //func Parse(ua string) (res *TResult, err error) {
 //	uaString := strings.ToLower(ua)
@@ -120,4 +119,3 @@ func TestParse(t *testing.T) {
 //	}
 //	return
 //}
-

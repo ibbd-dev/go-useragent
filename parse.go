@@ -1,9 +1,13 @@
 package useragent
 
 import (
-	"strings"
-	"regexp"
 	"errors"
+	"regexp"
+	"strings"
+)
+
+const (
+	momoPrefix = "momochat"
 )
 
 // 返回结果
@@ -16,64 +20,69 @@ type TResult struct {
 
 var (
 	//regex
-	leftQuote = "("
-	rightQuote = ")"
-	quoteString1 = "[^"
-        quoteString2 = "]*"
-	makeString = strings.Join(makeList, "|")
-	modelString = "[^;]*;"
-	modelString2 = "[^;]* build"
-	osString = strings.Join(osList, "|")
-	dot = "."
-	osvString = "[0-9]{1,2}"
+	makeStr = strings.Join(makeList, "|")
+	osStr   = strings.Join(osList, "|")
+	modeStr = "\\(.+?;"
+
+	// 正则
+	makeRegexp *regexp.Regexp
+	modeRegexp *regexp.Regexp
+	osRegexp   *regexp.Regexp
 )
+
+var ()
+
+func init() {
+	var err error
+	makeRegexp, err = regexp.Compile(makeStr)
+	if err != nil {
+		panic(err)
+	}
+
+	modeRegexp, err = regexp.Compile(modeStr)
+	if err != nil {
+		panic(err)
+	}
+
+	osRegexp, err = regexp.Compile(osStr)
+	if err != nil {
+		panic(err)
+	}
+}
 
 // Parse 从Useragent字符串中解释出手机品牌，型号，操作系统等信息
 func Parse(ua string) (res *TResult, err error) {
-	res = &TResult{}
-	leftQuoteMetaString := regexp.QuoteMeta(leftQuote)
-	rightQuoteMetaString := regexp.QuoteMeta(rightQuote)
-	extraQuoteMetaString := leftQuoteMetaString + quoteString1 + leftQuoteMetaString + quoteString2 + rightQuoteMetaString
-	extraQuote, err := regexp.Compile(extraQuoteMetaString)
-	if err != nil {
-		return nil, err
-	}
-	quoteString := extraQuote.FindString(ua)
-	quoteString = strings.TrimLeft(quoteString, leftQuote)
-	quoteString = strings.TrimRight(quoteString, rightQuote)
-	uaString := strings.ToLower(quoteString)
-	res, err = parseMakeAndModel(uaString, res)
-	res, err = parseOsAndOsv(uaString, res)
-	if err != nil {
-		return res, err
-	}
-	return res, nil
-}
+	// 预处理ua
+	ua = strings.TrimSpace(ua)
+	ua = strings.ToLower(ua)
 
-func parseMakeAndModel(ua string, res *TResult) (*TResult,  error) {
-	//make
-	extraMake, err := regexp.Compile(makeString)
-	if err != nil {
-		return nil, err
-	}
-	brand := extraMake.FindString(ua)
-	if brand != "" {
-		if m, ok := makeMap[brand]; ok {
+	// 解释品牌
+	res = &TResult{}
+	res.Make = makeRegexp.FindString(ua)
+	if res.Make != "" {
+		if m, ok := makeMap[res.Make]; ok {
 			res.Make = m
 		} else {
 			res.Make = MakeUnknown
 		}
 	}
 
+	// 解释型号
+	res, err = parseModel(ua, res)
+	if err != nil {
+		return res, err
+	}
+
+	//res, err = parseOsAndOsv(uaString, res)
+	return res, nil
+}
+
+func parseModel(ua string, res *TResult) (*TResult, error) {
 	//model
-	var model string
-	if !strings.Contains(ua, "build") {
-		extraModel, err := regexp.Compile(modelString)
-		if err != nil {
-			return res, err
-		}
-		model = extraModel.FindString(ua)
-		if model == "" {
+	//if !strings.Contains(ua, "build") {
+	if strings.HasSuffix(momoPrefix) {
+		res.Model = modelRegexp.FindString(ua)
+		if res.Model == "" {
 			err = errors.New("extra model failed!")
 			return res, err
 		}
@@ -106,17 +115,11 @@ func parseMakeAndModel(ua string, res *TResult) (*TResult,  error) {
 	return res, nil
 }
 
-
-
 func parseOsAndOsv(ua string, res *TResult) (*TResult, error) {
 	//os
 	ua = strings.Replace(ua, ";", "", -1)
 	ua = strings.Replace(ua, "_", ".", -1)
-	extraOs, err := regexp.Compile(osString)
-	if err != nil {
-		return res, err
-	}
-	os := extraOs.FindString(ua)
+	os := osRegexp.FindString(ua)
 	os = strings.Trim(os, " ")
 	if o, ok := osMap[os]; ok {
 		res.Os = o
@@ -126,16 +129,9 @@ func parseOsAndOsv(ua string, res *TResult) (*TResult, error) {
 
 	//osv
 	dotMetaString := regexp.QuoteMeta(dot)
-	osvMetaString := "(" + osvString + dotMetaString  + "){1,2}[0-9]"
+	osvMetaString := "(" + osvString + dotMetaString + "){1,2}[0-9]"
 	extraOsv, err := regexp.Compile(osvMetaString)
 	osv := extraOsv.FindString(ua)
 	res.Osv = osv
 	return res, nil
 }
-
-
-
-
-
-
-
