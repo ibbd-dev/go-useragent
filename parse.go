@@ -42,13 +42,21 @@ func Parse(ua string) (res *TResult, err error) {
 	quoteString = strings.TrimLeft(quoteString, leftQuote)
 	quoteString = strings.TrimRight(quoteString, rightQuote)
 	uaString := strings.ToLower(quoteString)
+	res, err = parseMakeAndModel(uaString, res)
+	res, err = parseOsAndOsv(uaString, res)
+	if err != nil {
+		return res, err
+	}
+	return res, nil
+}
 
+func parseMakeAndModel(ua string, res *TResult) (*TResult,  error) {
 	//make
 	extraMake, err := regexp.Compile(makeString)
 	if err != nil {
 		return nil, err
 	}
-	brand := extraMake.FindString(uaString)
+	brand := extraMake.FindString(ua)
 	if brand != "" {
 		if m, ok := makeMap[brand]; ok {
 			res.Make = m
@@ -59,12 +67,12 @@ func Parse(ua string) (res *TResult, err error) {
 
 	//model
 	var model string
-	if !strings.Contains(uaString, "build") {
+	if !strings.Contains(ua, "build") {
 		extraModel, err := regexp.Compile(modelString)
 		if err != nil {
 			return res, err
 		}
-		model = extraModel.FindString(uaString)
+		model = extraModel.FindString(ua)
 		if model == "" {
 			err = errors.New("extra model failed!")
 			return res, err
@@ -86,7 +94,7 @@ func Parse(ua string) (res *TResult, err error) {
 		if err != nil {
 			return res, err
 		}
-		model = extraModel.FindString(uaString)
+		model = extraModel.FindString(ua)
 		if model == "" {
 			err = errors.New("extra model failed!")
 			return res, err
@@ -95,15 +103,20 @@ func Parse(ua string) (res *TResult, err error) {
 	}
 	model = strings.Trim(model, " ")
 	res.Model = model
+	return res, nil
+}
 
+
+
+func parseOsAndOsv(ua string, res *TResult) (*TResult, error) {
 	//os
-	uaString = strings.Replace(uaString, ";", "", -1)
-	uaString = strings.Replace(uaString, "_", ".", -1)
+	ua = strings.Replace(ua, ";", "", -1)
+	ua = strings.Replace(ua, "_", ".", -1)
 	extraOs, err := regexp.Compile(osString)
 	if err != nil {
 		return res, err
 	}
-	os := extraOs.FindString(uaString)
+	os := extraOs.FindString(ua)
 	os = strings.Trim(os, " ")
 	if o, ok := osMap[os]; ok {
 		res.Os = o
@@ -115,10 +128,13 @@ func Parse(ua string) (res *TResult, err error) {
 	dotMetaString := regexp.QuoteMeta(dot)
 	osvMetaString := "(" + osvString + dotMetaString  + "){1,2}[0-9]"
 	extraOsv, err := regexp.Compile(osvMetaString)
-	osv := extraOsv.FindString(uaString)
+	osv := extraOsv.FindString(ua)
 	res.Osv = osv
 	return res, nil
 }
+
+
+
 
 
 
