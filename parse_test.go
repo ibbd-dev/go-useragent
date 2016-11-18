@@ -19,7 +19,6 @@ func readLine(fileName string, handler func(string)) error {
 		line, err := buf.ReadString('\n')
 		line = strings.TrimSpace(line)
 		handler(line)
-		break
 		if err != nil {
 			if err == io.EOF {
 				return nil
@@ -52,7 +51,7 @@ func handler(line string) {
 	}
 }
 
-func _TestParse(t *testing.T) {
+func TestParse(t *testing.T) {
 	readLine("app.log.2016111710", handler)
 }
 
