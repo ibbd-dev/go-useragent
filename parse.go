@@ -1,13 +1,17 @@
 package useragent
 
 import (
-	"fmt"
 	"regexp"
 	"strings"
 )
 
 const (
 	momoPrefix = "momochat"
+
+	//regex
+	uaStr       = "\\(.*?\\)" // 将ua中的关键部分提取出来
+	modeStr     = "; .+? Build\\/"
+	momoModeStr = "\\(.+?;" // momo
 )
 
 // 返回结果
@@ -22,12 +26,8 @@ type TResult struct {
 }
 
 var (
-	//regex
-	uaStr       = "\\(.*?\\)" // 将ua中的关键部分提取出来
-	makeStr     = strings.Join(makeList, "|")
-	osStr       = strings.Join(osList, "|")
-	modeStr     = "; .+? Build\\/"
-	momoModeStr = "\\(.+?;" // momo
+	makeStr = strings.Join(makeList, "|")
+	osStr   = strings.Join(osList, "|")
 
 	uaRegexp *regexp.Regexp
 
@@ -41,8 +41,6 @@ var (
 	androidOsRe *regexp.Regexp
 	iOsOsRe     *regexp.Regexp
 )
-
-var ()
 
 func init() {
 	var err error
@@ -80,12 +78,10 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-
-	fmt.Println("--")
 }
 
 // Parse 从Useragent字符串中解释出手机品牌，型号，操作系统等信息
-func Parse(ua string) (res *TResult, err error) {
+func Parse(ua string) (res *TResult) {
 	// 预处理ua
 	ua = strings.TrimSpace(ua)
 	ua = strings.ToLower(ua)
@@ -116,7 +112,7 @@ func Parse(ua string) (res *TResult, err error) {
 		// 解释操作系统及版本号
 		res.parseOsAndOsv()
 	}
-	return res, nil
+	return res
 }
 
 func (res *TResult) parseModel(ua string) {
