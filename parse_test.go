@@ -10,15 +10,38 @@ import (
 )
 
 func TestSimpleParse(t *testing.T) {
+	// iphone momo
 	ua := "MomoChat/6.11.2 ios/576 (iPhone 6S Plus; iPhone OS 9.3.5; zh_CN; iPhone8,2; S1)"
 	res, _ := Parse(ua)
 	fmt.Printf("%s\n%+v\n\n", ua, *res)
 
+	// iphone mozilla
 	ua = "Mozilla/5.0 (iPhone; CPU iPhone OS 7_1_2 like Mac OS X) AppleWebKit/537.51.2 (KHTML, like Gecko) Mobile/11D257"
 	res, _ = Parse(ua)
 	fmt.Printf("%s\n%+v\n\n", ua, *res)
 
+	// android mozilla
 	ua = "Mozilla/5.0 (Linux; Android 4.4.3; MI 2 Build/KTU84L) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/33.0.0.0 Mobile Safari/537.36"
+	res, _ = Parse(ua)
+	fmt.Printf("%s\n%+v\n\n", ua, *res)
+
+	// iphone mozilla
+	ua = "Mozilla/5.0 (iPhone; CPU iPhone OS 7_1 like Mac OS X) AppleWebKit/537.51.2 (KHTML, like Gecko) Mobile/11D167"
+	res, _ = Parse(ua)
+	fmt.Printf("%s\n%+v\n\n", ua, *res)
+
+	// ipad mozilla
+	ua = "Mozilla/5.0 (iPad; CPU OS 9_3_2 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Mobile/13F69"
+	res, _ = Parse(ua)
+	fmt.Printf("%s\n%+v\n\n", ua, *res)
+
+	// ipod momo
+	ua = "MomoChat/6.11.2 ios/576 (iPod touch 5G; iPhone OS 7.1.2; zh_CN; iPod5,1; S1)"
+	res, _ = Parse(ua)
+	fmt.Printf("%s\n%+v\n\n", ua, *res)
+
+	// andoid momo
+	ua = "MomoChat/7.2 Android/905 (Hisense E51-M; Android 5.1.1; Gapps 0; zh_CN; android; Hisense)"
 	res, _ = Parse(ua)
 	fmt.Printf("%s\n%+v\n\n", ua, *res)
 }
@@ -54,18 +77,14 @@ func handler(line string) {
 		if err != nil {
 			fmt.Println(err)
 		}
-		//if result.Make == "" {
-		fmt.Println("ua: ", ua)
 
-		fmt.Println("brand: ", result.Make)
-		fmt.Println("model: ", result.Model)
-		fmt.Println("os: ", result.Os)
-		fmt.Println("osv: ", result.Osv)
+		//if result.Make == "" {
+		fmt.Printf("ua: %s\n%+v\n", ua, result)
 		//}
 	}
 }
 
-func TestParse(t *testing.T) {
+func _TestParse(t *testing.T) {
 	readLine("app.log.2016111710", handler)
 }
 
